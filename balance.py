@@ -6,9 +6,10 @@ from typing import Dict
 logger = logging.getLogger(__name__)
 
 # USER FILE DOIMIY JOYGA YOZILADI
+import os
+
 DATA_DIR = "/data"
-os.makedirs(DATA_DIR, exist_ok=True)
-USER_FILE = os.path.join(DATA_DIR, "users.json")
+USERS_FILE = os.path.join(DATA_DIR, "users.json")
 
 class BalanceManager:
     def __init__(self):
