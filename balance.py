@@ -16,20 +16,15 @@ class BalanceManager:
         self.users_file = USER_FILE
         self.users = self._load_users()
 
-    def _load_users(self) -> Dict:
-        if not os.path.exists(self.users_file):
-            return {}
-        try:
-            with open(self.users_file, 'r', encoding='utf-8') as f:
-                return json.load(f)
-        except Exception as e:
-            logger.error(f"Foydalanuvchilarni yuklashda xatolik: {e}")
-            return {}
+    def _load_users(self):
+    if not os.path.exists(self.users_file):
+        return {}
+    with open(self.users_file, "r", encoding="utf-8") as f:
+        return json.load(f)
 
-    def _save_users(self):
-        try:
-            with open(self.users_file, 'w', encoding='utf-8') as f:
-                json.dump(self.users, f, ensure_ascii=False, indent=2)
+def _save_users(self):
+    with open(self.users_file, "w", encoding="utf-8") as f:
+        json.dump(self.users, f, ensure_ascii=False, indent=2)
         except Exception as e:
             logger.error(f"Foydalanuvchilarni saqlashda xatolik: {e}")
 
