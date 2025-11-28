@@ -17,7 +17,7 @@ class BalanceManager:
     """Foydalanuvchilar balansi bilan ishlash"""
 
     def __init__(self):
-        self.users_file = USERS_FILE
+        self.users_file = "/data/users.json"
         self.users = self._load_users()
 
     def _load_users(self) -> Dict:
