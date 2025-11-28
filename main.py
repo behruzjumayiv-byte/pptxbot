@@ -25,7 +25,7 @@ storage = MemoryStorage()
 dp = Dispatcher(storage=storage)
 
 async def main():
-    """Botni ishga tushirish"""
+    
     try:
         # Handlerlarni ro'yxatdan o'tkazish
         register_handlers(dp)
