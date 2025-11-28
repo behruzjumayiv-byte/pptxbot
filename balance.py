@@ -5,10 +5,12 @@ from typing import Dict
 
 logger = logging.getLogger(__name__)
 
+import os
+
+DB_PATH = "/root/pptxbot/users.json"
+
 class BalanceManager:
-    """Foydalanuvchilar balansi bilan ishlash"""
-    
-    def __init__(self, users_file: str = "users.json"):
+    def __init__(self, users_file: str = DB_PATH):
         self.users_file = users_file
         self.users = self._load_users()
     
