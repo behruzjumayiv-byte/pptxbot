@@ -1,3 +1,7 @@
+import os
+print("USERS.JSON PATH =", os.path.abspath("users.json"))
+print("CURRENT DIR =", os.getcwd())
+print("FILES IN DIR =", os.listdir())
 import logging
 from aiogram import Router, F
 from aiogram.filters import Command
