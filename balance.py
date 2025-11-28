@@ -14,7 +14,7 @@ USERS_FILE = os.path.join(DATA_DIR, "users.json")
 
 
 class BalanceManager:
-    """Foydalanuvchilar balansi bilan ishlash"""
+    
 
     def __init__(self):
         self.users_file = "/data/users.json"
@@ -33,7 +33,7 @@ class BalanceManager:
             return {}
 
     def _save_users(self):
-        """Foydalanuvchilar ma'lumotlarini saqlash"""
+       
         try:
             with open(self.users_file, 'w', encoding='utf-8') as f:
                 json.dump(self.users, f, ensure_ascii=False, indent=2)
@@ -41,7 +41,7 @@ class BalanceManager:
             logger.error(f"Foydalanuvchilarni saqlashda xatolik: {e}")
 
     def ensure_user_exists(self, user_id: int):
-        """Foydalanuvchini ro'yxatga olish (agar mavjud bo'lmasa)"""
+        
         user_id_str = str(user_id)
         if user_id_str not in self.users:
             self.users[user_id_str] = {
@@ -53,12 +53,12 @@ class BalanceManager:
             logger.info(f"Yangi foydalanuvchi qo'shildi: {user_id}")
 
     def get_user_info(self, user_id: int) -> Dict:
-        """Foydalanuvchi ma'lumotlarini olish"""
+        
         self.ensure_user_exists(user_id)
         return self.users[str(user_id)].copy()
 
     def add_balance(self, user_id: int, amount: int) -> bool:
-        """Balansga pul qo'shish"""
+        
         try:
             self.ensure_user_exists(user_id)
             user_id_str = str(user_id)
@@ -71,7 +71,7 @@ class BalanceManager:
             return False
 
     def deduct_balance(self, user_id: int, amount: int, slides_count: int) -> bool:
-        """Balansdan pul yechish"""
+        
         try:
             self.ensure_user_exists(user_id)
             user_id_str = str(user_id)
@@ -91,7 +91,7 @@ class BalanceManager:
             return False
 
     def remove_balance(self, user_id: int, amount: int) -> bool:
-        """Balansdan pul olib tashlash"""
+       
         try:
             self.ensure_user_exists(user_id)
             user_id_str = str(user_id)
