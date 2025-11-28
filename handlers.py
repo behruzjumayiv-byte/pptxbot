@@ -34,7 +34,9 @@ def register_handlers(dp):
 
 @router.message(Command("start"))
 async def cmd_start(message: Message, state: FSMContext):
-    """Start komandasi"""
+    import os
+    print("BALANCE DB PATH =", os.getcwd(), " | FILES =", os.listdir())
+
     try:
         user_id = message.from_user.id
         balance_manager.ensure_user_exists(user_id)
