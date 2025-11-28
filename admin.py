@@ -36,6 +36,8 @@ def is_admin(user_id: int) -> bool:
 
 @router.message(Command("admin"))
 async def cmd_admin(message: Message):
+    import os
+print("BALANCE DB PATH =", os.getcwd(), " | FILES =", os.listdir())
     """Admin panel"""
     if not is_admin(message.from_user.id):
         await message.answer("❌ Bu buyruq faqat adminlar uchun.")
