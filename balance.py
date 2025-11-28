@@ -4,7 +4,8 @@ from typing import Dict
 
 logger = logging.getLogger(__name__)
 
-DB_PATH = "users.db"   # Fly.io Launch Mode'da shu fayl saqlanadi
+import os
+DB_PATH = os.path.join("/data", "users.db")   # Fly.io Launch Mode'da shu fayl saqlanadi
 
 class BalanceManager:
     def __init__(self):
