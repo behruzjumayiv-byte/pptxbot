@@ -12,7 +12,8 @@ import os
 logger = logging.getLogger(__name__)
 
 # Admin ID ro'yxati (.env dan olish mumkin)
-ADMINS = [int(x) for x in os.getenv('ADMIN_IDS', '').split(',') if x.strip()]
+ADMINS = os.getenv("ADMINS", "")
+ADMINS = [int(x) for x in ADMINS.split(",") if x.strip()]
 
 # FSM uchun States
 class AdminStates(StatesGroup):
