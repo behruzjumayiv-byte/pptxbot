@@ -10,7 +10,7 @@ import textwrap
 logger = logging.getLogger(__name__)
 
 class PPTMaker:
-    """PPTX prezentatsiya yaratuvchi"""
+    
     
     def __init__(self):
         self.slide_width = Inches(10)
@@ -143,7 +143,7 @@ class PPTMaker:
             return text
     
     def _sanitize_filename(self, filename: str) -> str:
-        """Fayl nomini tozalash"""
+        
         # Ruxsat etilmagan belgilarni olib tashlash
         invalid_chars = '<>:"/\\|?*'
         for char in invalid_chars:
