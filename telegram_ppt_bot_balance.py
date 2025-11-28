@@ -1,116 +1,107 @@
-import json
+import sqlite3
 import logging
-import os
 from typing import Dict
 
 logger = logging.getLogger(__name__)
 
+DB_PATH = "users.db"   # Fly.io Launch Mode'da shu fayl saqlanadi
+
 class BalanceManager:
-    """Foydalanuvchilar balansi bilan ishlash"""
-    
-    def __init__(self, users_file: str = "users.json"):
-        self.users_file = users_file
-        self.users = self._load_users()
-    
-    def _load_users(self) -> Dict:
-        """Foydalanuvchilar ma'lumotlarini yuklash"""
+    def __init__(self):
+        self._connect()
+        self._create_table()
+
+    def _connect(self):
+        self.conn = sqlite3.connect(DB_PATH, check_same_thread=False)
+        self.cursor = self.conn.cursor()
+
+    def _create_table(self):
         try:
-            if os.path.exists(self.users_file):
-                with open(self.users_file, 'r', encoding='utf-8') as f:
-                    return json.load(f)
-            else:
-                return {}
+            self.cursor.execute("""
+            CREATE TABLE IF NOT EXISTS users (
+                user_id INTEGER PRIMARY KEY,
+                balance INTEGER DEFAULT 0,
+                total_slides INTEGER DEFAULT 0,
+                total_spent INTEGER DEFAULT 0
+            )
+            """)
+            self.conn.commit()
         except Exception as e:
-            logger.error(f"Foydalanuvchilarni yuklashda xatolik: {e}")
-            return {}
-    
-    def _save_users(self):
-        """Foydalanuvchilar ma'lumotlarini saqlash"""
-        try:
-            with open(self.users_file, 'w', encoding='utf-8') as f:
-                json.dump(self.users, f, ensure_ascii=False, indent=2)
-        except Exception as e:
-            logger.error(f"Foydalanuvchilarni saqlashda xatolik: {e}")
-    
+            logger.error(f"Jadval yaratishda xatolik: {e}")
+
     def ensure_user_exists(self, user_id: int):
-        """Foydalanuvchini ro'yxatga olish (agar mavjud bo'lmasa)"""
-        user_id_str = str(user_id)
-        if user_id_str not in self.users:
-            self.users[user_id_str] = {
-                "balance": 0,
-                "total_slides": 0,
-                "total_spent": 0
-            }
-            self._save_users()
-            logger.info(f"Yangi foydalanuvchi qo'shildi: {user_id}")
-    
+        self.cursor.execute("SELECT user_id FROM users WHERE user_id = ?", (user_id,))
+        if not self.cursor.fetchone():
+            self.cursor.execute(
+                "INSERT INTO users (user_id, balance, total_slides, total_spent) VALUES (?, 0, 0, 0)",
+                (user_id,)
+            )
+            self.conn.commit()
+
     def get_user_info(self, user_id: int) -> Dict:
-        """Foydalanuvchi ma'lumotlarini olish"""
         self.ensure_user_exists(user_id)
-        return self.users[str(user_id)].copy()
-    
+        self.cursor.execute("SELECT balance, total_slides, total_spent FROM users WHERE user_id = ?", (user_id,))
+        row = self.cursor.fetchone()
+        return {
+            "balance": row[0],
+            "total_slides": row[1],
+            "total_spent": row[2],
+        }
+
     def add_balance(self, user_id: int, amount: int) -> bool:
-        """Balansga pul qo'shish"""
         try:
             self.ensure_user_exists(user_id)
-            user_id_str = str(user_id)
-            self.users[user_id_str]["balance"] += amount
-            self._save_users()
-            logger.info(f"Foydalanuvchi {user_id} balansiga {amount} qo'shildi")
+            self.cursor.execute(
+                "UPDATE users SET balance = balance + ? WHERE user_id = ?",
+                (amount, user_id)
+            )
+            self.conn.commit()
             return True
         except Exception as e:
             logger.error(f"Balans qo'shishda xatolik: {e}")
             return False
-    
+
     def deduct_balance(self, user_id: int, amount: int, slides_count: int) -> bool:
-        """Balansdan pul yechish"""
+        self.ensure_user_exists(user_id)
+
+        self.cursor.execute("SELECT balance FROM users WHERE user_id = ?", (user_id,))
+        balance = self.cursor.fetchone()[0]
+
+        if balance < amount:
+            return False
+
         try:
-            self.ensure_user_exists(user_id)
-            user_id_str = str(user_id)
-            
-            if self.users[user_id_str]["balance"] < amount:
-                logger.warning(f"Foydalanuvchi {user_id} balansi yetarli emas")
-                return False
-            
-            self.users[user_id_str]["balance"] -= amount
-            self.users[user_id_str]["total_spent"] += amount
-            self.users[user_id_str]["total_slides"] += slides_count
-            self._save_users()
-            logger.info(f"Foydalanuvchi {user_id} balansidan {amount} yechildi")
+            self.cursor.execute(
+                "UPDATE users SET balance = balance - ?, total_slides = total_slides + ?, total_spent = total_spent + ? WHERE user_id = ?",
+                (amount, slides_count, amount, user_id)
+            )
+            self.conn.commit()
             return True
         except Exception as e:
-            logger.error(f"Balans yechishda xatolik: {e}")
+            logger.error(f"Balansdan yechishda xatolik: {e}")
             return False
-    
+
     def remove_balance(self, user_id: int, amount: int) -> bool:
-        """Balansdan pul olib tashlash (admin uchun)"""
         try:
             self.ensure_user_exists(user_id)
-            user_id_str = str(user_id)
-            
-            self.users[user_id_str]["balance"] = max(0, self.users[user_id_str]["balance"] - amount)
-            self._save_users()
-            logger.info(f"Foydalanuvchi {user_id} balansidan {amount} olib tashlandi")
+            self.cursor.execute(
+                "UPDATE users SET balance = MAX(balance - ?, 0) WHERE user_id = ?",
+                (amount, user_id)
+            )
+            self.conn.commit()
             return True
         except Exception as e:
             logger.error(f"Balans olib tashlashda xatolik: {e}")
             return False
-    
-    def get_all_users(self) -> Dict:
-        """Barcha foydalanuvchilarni olish"""
-        return self.users.copy()
-    
+
     def get_statistics(self) -> Dict:
-        """Umumiy statistika"""
         try:
-            total_users = len(self.users)
-            total_slides = sum(user["total_slides"] for user in self.users.values())
-            total_earned = sum(user["total_spent"] for user in self.users.values())
-            
+            self.cursor.execute("SELECT COUNT(*), SUM(total_slides), SUM(total_spent) FROM users")
+            row = self.cursor.fetchone()
             return {
-                "total_users": total_users,
-                "total_slides": total_slides,
-                "total_earned": total_earned
+                "total_users": row[0] or 0,
+                "total_slides": row[1] or 0,
+                "total_earned": row[2] or 0
             }
         except Exception as e:
             logger.error(f"Statistika olishda xatolik: {e}")
@@ -119,3 +110,8 @@ class BalanceManager:
                 "total_slides": 0,
                 "total_earned": 0
             }
+
+    def get_all_users(self) -> Dict:
+        self.cursor.execute("SELECT * FROM users")
+        rows = self.cursor.fetchall()
+        return rows
