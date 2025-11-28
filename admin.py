@@ -24,7 +24,7 @@ class AdminStates(StatesGroup):
 
 # Router
 router = Router()
-balance_manager = BalanceManager()
+from database import balance_manager
 
 def register_admin_handlers(dp):
     """Admin handlerlarni ro'yxatdan o'tkazish"""
