@@ -4,7 +4,11 @@ import os
 from typing import Dict
 
 logger = logging.getLogger(__name__)
+import os
 
+DATA_DIR = "/data"
+os.makedirs(DATA_DIR, exist_ok=True)
+USERS_FILE = os.path.join(DATA_DIR, "users.json")
 # USER FILE DOIMIY JOYGA YOZILADI
 import os
 
