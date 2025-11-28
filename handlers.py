@@ -24,7 +24,7 @@ class PresentationStates(StatesGroup):
 
 # Router yaratish
 router = Router()
-balance_manager = BalanceManager()
+from database import balance_manager
 ai_generator = AIGenerator()
 ppt_maker = PPTMaker()
 
