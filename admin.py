@@ -27,18 +27,18 @@ router = Router()
 from database import balance_manager
 
 def register_admin_handlers(dp):
-    """Admin handlerlarni ro'yxatdan o'tkazish"""
+   
     dp.include_router(router)
 
 def is_admin(user_id: int) -> bool:
-    """Foydalanuvchi admin ekanligini tekshirish"""
+    
     return user_id in ADMINS
 
 @router.message(Command("admin"))
 async def cmd_admin(message: Message):
     import os
 print("BALANCE DB PATH =", os.getcwd(), " | FILES =", os.listdir())
-    """Admin panel"""
+    
     if not is_admin(message.from_user.id):
         await message.answer("❌ Bu buyruq faqat adminlar uchun.")
         return
@@ -75,7 +75,7 @@ async def admin_add_balance_start(callback: CallbackQuery, state: FSMContext):
 
 @router.message(AdminStates.waiting_for_add_balance_user)
 async def admin_add_balance_user(message: Message, state: FSMContext):
-    """Balans qo'shish - user ID qabul qilish"""
+   
     try:
         user_id = int(message.text.strip())
         await state.update_data(target_user_id=user_id)
@@ -89,7 +89,7 @@ async def admin_add_balance_user(message: Message, state: FSMContext):
 
 @router.message(AdminStates.waiting_for_add_balance_amount)
 async def admin_add_balance_amount(message: Message, state: FSMContext):
-    """Balans qo'shish - summa qabul qilish"""
+   
     try:
         amount = int(message.text.strip())
         if amount <= 0:
