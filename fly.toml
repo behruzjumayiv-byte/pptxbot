@@ -14,3 +14,6 @@ primary_region = "fra"
 
 [checks]
   skip = true
+[mounts]
+  source="users_data"
+  destination="/data"
